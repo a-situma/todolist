@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List App</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: calc(100vh - 40px);
+            padding-top: 10vh;
+        }
+        .todo-app {
+            width: 600px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h2 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .task-input {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .task-input input, .task-input button {
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+        }
+        .task-input input[type="text"] {
+            flex: 3;
+            min-width: 0px;
+        }
+        .task-input input[type="date"],
+        .task-input input[type="time"] {
+            flex: 2;
+            min-width: 0px;
+        }
+        .task-input button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+        .task-input button:hover {
+            background-color: #45a049;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #fff;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        li:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .task-details {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        .task-time, .task-date, .completion-time {
+            font-size: 0.8em;
+            color: #666;
+        }
+        .buttons button {
+            margin-left: 10px;
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .mark-done {
+            background-color: darkgreen;
+            color: white;
+        }
+        .mark-done:hover {
+            background-color: #45a049;
+        }
+        .delete-task {
+            background-color: #f44336;
+            color: white;
+        }
+        .done {
+            background-color: lightgreen;
+            text-decoration: line-through;
+        }
+        .not-done {
+            background-color: lightcoral;
+        }
+        .tick {
+            margin-right: 5px;
+            color: dark;
+        }
+        .landing-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url(list3.jpg);
+            background-image: linear-gradient(rgba(33, 27, 27, 0.3), rgba(255, 255, 255, 0.3)), url('list3.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: transform 1.1s ease-in-out;
+        }
+        .landing-content {
+            text-align: center;
+            color: rgb(14, 9, 9);
+            padding: 20px;
+            margin-top: -10vh; 
+        }
+        .landing-content h1 {
+            font-size: 3em;
+            margin-bottom: -15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .landing-content p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            font-weight: bold;
+            font-style: italic;
+        }
+        .start-btn {
+            padding: 10px 15px;
+            font-size: 1.2em;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .start-btn:hover {
+            background-color: #052e07;
+            transform: scale(1.05);
+        }
+        .hidden {
+            transform: translateY(-100%);
+        }
+        #name-input {
+            padding: 10px;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            width: 300px;
+            border: none;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .app-container {
+            display: none;
+            flex-direction: row;
+            justify-content: center;
+            gap: 20px;
+            padding-top: 10vh;
+        }
+        .summary-container {
+            width: 300px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .summary-container h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .summary-year {
+            margin-bottom: 20px;
+        }
+        .summary-month {
+            margin-bottom: 15px;
+        }
+        .summary-day {
+            margin-bottom: 10px;
+        }
+        .summary-task {
+            background-color: #fff;
+            padding: 5px 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        .summary-year h4, .summary-month h5, .summary-day h6 {
+            cursor: pointer;
+            user-select: none;
+        }
+        .summary-year h4:hover, .summary-month h5:hover, .summary-day h6:hover {
+            text-decoration: underline;
+        }
+        .collapsed {
+            display: none;
+        }
+        .summary-task-time {
+            font-size: 0.8em;
+            color: #666;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="landing-page" id="landing-page">
+        <div class="landing-content">
+            <h1>Hi, <br>Welcome to Your <br> Personal Task Manager</h1>
+            <p>Organize your day with Ease & Efficiency</p>
+            <input type="text" id="name-input" placeholder="Enter your name" required>
+            <button class="start-btn" onclick="startApp()">Set Your List</button>
+        </div>
+    </div>
+
+    <div class="app-container" id="app-container">
+        <div class="todo-app">
+            <div class="header">
+                <h2>Welcome, <span id="user-name"></span>. <br> Please add items to your to-do list</h2>
+                <p id="current-date"></p>
+            </div>
+
+            <div class="task-input">
+                <input type="text" id="task-input" placeholder="Enter a task">
+                <input type="date" id="task-date" required>
+                <input type="time" id="task-time" required>
+                <button onclick="addTask()">Add Task</button>
+            </div>
+
+            <ul id="task-list">
+                <!-- Tasks will be added here -->
+            </ul>
+        </div>
+        <div class="summary-container">
+            <h3>Completed Tasks Summary</h3>
+            <div id="summary-content"></div>
+        </div>
+    </div>
+
+    <script>
+        function startApp() {
+            const nameInput = document.getElementById('name-input');
+            const userName = nameInput.value.trim();
+            
+            if (userName === "") {
+                alert("Please enter your name to continue.");
+                return;
+            }
+            
+            const landingPage = document.getElementById('landing-page');
+            const appContainer = document.getElementById('app-container');
+            
+            landingPage.classList.add('hidden');
+            appContainer.style.display = 'flex';
+            
+            document.getElementById("user-name").innerText = userName;
+            updateCurrentDate();
+        }
+
+        let lastDate = '';
+        function updateCurrentDate() {
+            const currentDate = new Date();
+            const formattedDate = currentDate.toLocaleDateString();
+            document.getElementById("current-date").innerText = `Date: ${formattedDate}`;
+
+            if (formattedDate !== lastDate) {
+                clearCompletedTasks();
+                lastDate = formattedDate;
+            }
+
+            setTimeout(updateCurrentDate, 60000); // Update every minute
+        }
+
+        function addTask() {
+            const taskInput = document.getElementById('task-input');
+            const taskDate = document.getElementById('task-date');
+            const taskTime = document.getElementById('task-time');
+            const taskText = taskInput.value.trim();
+            const scheduledDate = taskDate.value;
+            const scheduledTime = taskTime.value;
+
+            if (taskText === "" || scheduledDate === "" || scheduledTime === "") {
+                alert("Please enter a task, date, and time.");
+                return;
+            }
+            // Check if the scheduled date and time have already passed
+            const scheduledDateTime = new Date(scheduledDate + 'T' + scheduledTime);
+            const now = new Date();
+
+            if (scheduledDateTime <= now) {
+                alert("Please select a future date and time for the task.");
+                return;
+            }
+
+            const taskList = document.getElementById('task-list');
+            const li = document.createElement('li');
+
+            const currentTime = new Date().toLocaleTimeString();
+
+            li.innerHTML = `
+                <span>${taskText}</span>
+                <div class="task-details">
+                    <span class="task-date">Scheduled: ${scheduledDate}</span>
+                    <span class="task-time">Time: ${scheduledTime}</span>
+                    <span class="task-date">Added: ${currentTime}</span>
+                    <span class="completion-time"></span>
+                    <div class="buttons">
+                        <button class="mark-done" onclick="toggleTaskStatus(this)">Mark Done</button>
+                        <button class="delete-task" onclick="deleteTask(this)">Delete</button>
+                    </div>
+                </div>
+            `;
+            li.classList.add('not-done');
+            taskList.appendChild(li);
+            taskInput.value = '';
+            taskDate.value = '';
+            taskTime.value = '';
+
+            setTaskAlert(taskText, scheduledDate, scheduledTime);
+        }
+
+        function setTaskAlert(taskText, date, time) {
+            const alertTime = new Date(date + 'T' + time);
+            const now = new Date();
+            const timeUntilAlert = alertTime - now;
+
+            if (timeUntilAlert > 0) {
+                setTimeout(() => {
+                    alert(`Task Alert: "${taskText}" is scheduled now!`);
+                }, timeUntilAlert);
+            }
+        }
+
+        function toggleTaskStatus(button) {
+            const taskItem = button.closest('li');
+            const completionTime = taskItem.querySelector('.completion-time');
+            const taskText = taskItem.querySelector('span').textContent.replace('✓ ', '');
+            
+            if (taskItem.classList.contains('done')) {
+                taskItem.classList.remove('done');
+                taskItem.classList.add('not-done');
+                button.innerText = 'Mark Done';
+                completionTime.innerText = '';
+                taskItem.querySelector('.tick')?.remove();
+                removeFromSummary(taskText);
+            } else {
+                taskItem.classList.remove('not-done');
+                taskItem.classList.add('done');
+                button.innerText = 'Mark Not Done';
+                const currentTime = new Date().toLocaleTimeString();
+                completionTime.innerText = `Completed: ${currentTime}`;
+                taskItem.querySelector('span').insertAdjacentHTML('afterbegin', '<span class="tick">✓ </span>');
+                addToSummary(taskText, currentTime);
+            }
+        }
+
+        function addToSummary(taskText, completionTime) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.toLocaleString('default', { month: 'long' });
+            const day = now.getDate();
+
+            let summaryContent = document.getElementById('summary-content');
+            let yearDiv = summaryContent.querySelector(`.summary-year[data-year="${year}"]`);
+            
+            if (!yearDiv) {
+                yearDiv = document.createElement('div');
+                yearDiv.className = 'summary-year';
+                yearDiv.setAttribute('data-year', year);
+                yearDiv.innerHTML = `<h4 onclick="toggleCollapse(this)">${year}</h4><div class="year-content"></div>`;
+                summaryContent.prepend(yearDiv);
+            }
+
+            let monthDiv = yearDiv.querySelector(`.summary-month[data-month="${month}"]`);
+            
+            if (!monthDiv) {
+                monthDiv = document.createElement('div');
+                monthDiv.className = 'summary-month';
+                monthDiv.setAttribute('data-month', month);
+                monthDiv.innerHTML = `<h5 onclick="toggleCollapse(this)">${month}</h5><div class="month-content"></div>`;
+                yearDiv.querySelector('.year-content').appendChild(monthDiv);
+            }
+
+            let dayDiv = monthDiv.querySelector(`.summary-day[data-day="${day}"]`);
+            
+            if (!dayDiv) {
+                dayDiv = document.createElement('div');
+                dayDiv.className = 'summary-day';
+                dayDiv.setAttribute('data-day', day);
+                dayDiv.innerHTML = `<h6 onclick="toggleCollapse(this)">${day}</h6><div class="day-content"></div>`;
+                monthDiv.querySelector('.month-content').appendChild(dayDiv);
+            }
+
+            const taskDiv = document.createElement('div');
+            taskDiv.className = 'summary-task';
+            taskDiv.innerHTML = `
+                ${taskText}
+                <span class="summary-task-time">${completionTime}</span>
+            `;
+            dayDiv.querySelector('.day-content').appendChild(taskDiv);
+        }
+
+        function removeFromSummary(taskText) {
+            const summaryContent = document.getElementById('summary-content');
+            const taskDivs = summaryContent.querySelectorAll('.summary-task');
+            
+            for (let taskDiv of taskDivs) {
+                if (taskDiv.textContent.includes(taskText)) {
+                    const dayContent = taskDiv.parentElement;
+                    const dayDiv = dayContent.parentElement;
+                    taskDiv.remove();
+                    
+                    if (dayContent.children.length === 0) {
+                        const monthContent = dayDiv.parentElement;
+                        const monthDiv = monthContent.parentElement;
+                        dayDiv.remove();
+                        
+                        if (monthContent.children.length === 0) {
+                            const yearContent = monthDiv.parentElement;
+                            const yearDiv = yearContent.parentElement;
+                            monthDiv.remove();
+                            
+                            if (yearContent.children.length === 0) {
+                                yearDiv.remove();
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        function toggleCollapse(element) {
+            const content = element.nextElementSibling;
+            content.classList.toggle('collapsed');
+        }
+
+        function clearCompletedTasks() {
+            document.getElementById('summary-content').innerHTML = '';
+        }
+
+        function deleteTask(button) {
+            const taskItem = button.closest('li');
+            if (confirm("Are you sure you want to delete this task?")) {
+                const taskText = taskItem.querySelector('span').textContent.replace('✓ ', '');
+                removeFromSummary(taskText);
+                taskItem.remove();
+            }
+        }
+    </script>
+</body>
+</html>
